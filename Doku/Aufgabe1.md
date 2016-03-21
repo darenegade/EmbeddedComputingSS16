@@ -23,3 +23,5 @@ Der aufrufende Thread wird terminiert und alle über join verbundene Threads lö
 
 ## Aufgabe 1.3
 
+Siehe Aufgabe1.c
+
