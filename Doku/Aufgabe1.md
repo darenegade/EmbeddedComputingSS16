@@ -1,5 +1,7 @@
 # Praktikum 1
 
+Team: René Zarwel & Fabian Holtkötter
+
 ## Aufgabe 1.2
 
 ### Create
