@@ -28,14 +28,8 @@ int main ()
     int rc;
     // for-loop variable
     int i;
-    //attributes of the created threads
-    pthread_attr_t attr;
     //returned status pointer of threads
     void *status;
-
-    // Initialize attributes and set joinable
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     //Init Random
     srand((unsigned int) time( NULL ));
@@ -51,9 +45,6 @@ int main ()
             exit(-1);
         }
     }
-
-    // free attribute
-    pthread_attr_destroy(&attr);
 
     //wait for the other threads and check the threadID
     for(i = 0; i < NUM_THREADS; i++ ){
