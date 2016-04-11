@@ -19,13 +19,15 @@ void *threadPrint(void *arg)
 
     //finish and return threadID
     printf( "Thread %d: finished after %ds sleep ...exiting \n", (unsigned int)pthread_self(), sleepTime);
-    pthread_exit(pthread_self());
+    pthread_exit((void*)pthread_self());
 }
 
 int main ()
 {
     //saves create and join return values for failures
     int rc;
+    //For Loop index
+    int i;
     //attributes of the created threads
     pthread_attr_t attr;
     //returned status pointer of threads
@@ -39,7 +41,7 @@ int main ()
     srand((unsigned int) time( NULL ));
 
     //Create and start threads
-    for(int i=0; i < NUM_THREADS; i++ ){
+    for(i=0; i < NUM_THREADS; i++ ){
 
         rc = pthread_create(&threads[i], NULL, threadPrint, NULL );
         printf( "main() : created thread %d  \n", (unsigned int)threads[i]);
@@ -54,7 +56,7 @@ int main ()
     pthread_attr_destroy(&attr);
 
     //wait for the other threads and check the threadID
-    for(int i=0; i < NUM_THREADS; i++ ){
+    for(i=0; i < NUM_THREADS; i++ ){
 
         rc = pthread_join(threads[i], &status);
 
@@ -65,7 +67,7 @@ int main ()
 
         printf( "Main: completed thread id : %d  with status %d \n", (unsigned int)threads[i], rc);
 
-        printf( "ID is same: %s  \n", (pthread_equal(status , threads[i])? "TRUE" : "FALSE"));
+        printf( "ID is same: %s  \n", (pthread_equal((pthread_t)status , threads[i])? "TRUE" : "FALSE"));
 
     }
 
