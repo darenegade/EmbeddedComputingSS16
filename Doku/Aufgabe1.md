@@ -35,5 +35,8 @@ und beendet sich dann mit dem Rückgabewert der eigenen Thread ID.
 Derweil verbindet sich der Main-Thread mit den erstellten Threads und wartet auf deren Abschluss. Wenn ein Thread
 fertig ist, dann vergleicht der Main-Thread die zurückgegebene ID mit der gespeicherten und gibt das Ergebnis aus.
 Einen Beispiel Ablauf haben wir hier in einem Screenshot dargestellt:
+
 ![Screenshot Aufgabe 1](Aufgabe1Screencap.png)
+
+![Log Aufgabe 1](Aufgabe1Screencap_Timeline.png)
 
