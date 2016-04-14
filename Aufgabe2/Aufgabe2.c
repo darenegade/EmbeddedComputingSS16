@@ -1,10 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/neutrino.h>
 
-
-
-int main(int argc, char *argv[]) {
+int aufgabe21() {
 	struct timespec start, finish, requested;
 
 	clock_gettime(CLOCK_REALTIME, &start);
@@ -23,4 +22,25 @@ int main(int argc, char *argv[]) {
 	printf("Finis - Seconds: %d - NS: %d\n", finish.tv_sec, finish.tv_nsec);
 
 	return EXIT_SUCCESS;
+}
+
+int changeSystemTick(unsigned int microsecs) {
+	struct _clockperiod newClock, oldClock;
+
+	// set new clockspeed to parameter microsecs
+	newClock.nsec = microsecs*1000;
+	newClock.fract = 0;
+	ClockPeriod(CLOCK_REALTIME,
+	                 &newClock,
+	                 &oldClock,
+	                 0);
+
+	printf("Old resolution was %ld\n", oldClock.nsec / 1000);
+	printf("New resolution is %ld\n", newClock.nsec / 1000);
+
+}
+
+int main(int argc, char *argv[]) {
+	changeSystemTick(1000);
+	aufgabe21();
 }
