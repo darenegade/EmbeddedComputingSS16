@@ -16,8 +16,8 @@ Zum testen der tatsächlich gewarteten Zeit wurde einerseits eine Konsolenausgab
 die sowohl vor als auch nach dem warten die Systemzeit ausgibt, und außerdem ein System-Log erstellt,
 in dem anhand der Interrupts des Programms die gewartete Zeit nach der Ausführung gemessen werden kann.
 
-![Programmausgabe](Aufgabe2.1_screencap_output.PNG)
-![Systemlog-Messung](Aufgabe2.1_screencap_log.PNG)
+![Programmausgabe](images/Aufgabe2.1_screencap_output.PNG)
+![Systemlog-Messung](images/Aufgabe2.1_screencap_log.PNG)
 
 ## 2.2
 
@@ -29,5 +29,17 @@ Der minimal gerade sinnvolle Wert für den Systemtakt lässt sich über das Syst
 Wenn der Wert besonders niedrig ist, kommt der Prozessor vor lauter interrupts nicht mehr zum abarbeiten von anderen Tasks,
 während ein zu hoher Systemtak (bspw. über 1000 millisekunden) dazu führen kann, dass Wartezeiten unter 1000ms nicht mehr korrekt funktionieren.
 
+### Konfiguration 500ms
+![Systemlog des Ticker-Programms aus Aufgabe 2.1](images/Aufgabe2.2_screencap_500ms.PNG)
+![CPU-Auslastung](Aufgabe2.2_screencap_500ms_summary.PNG)
+
+### Konfiguration 3000ms
+![Systemlog des Ticker-Programms aus Aufgabe 2.1](images/Aufgabe2.2_screencap_3000ms.PNG)
+![CPU-Auslastung](Aufgabe2.2_screencap_3000ms_summary.PNG)
 
 ## 2.3
+
+Wie bereits in 2.2 genannt, führt eine zu hohe Konfiguration des Systemtakts (Takt > Wartezeit) dazu,
+dass nicht mehr zuverlässig gewartet wird. Dies geschieht, da die Systemzeit seltener aktualisiert wird, 
+und das Programm erst zur nächsten Änderung geweckt wird. Diese Änderunge ist allerdings bei zu hohem Takt später als 1ms.
+Siehe dazu auch die Screenshots in 2.2 mit dem Systemtakt bei 3000ms.
