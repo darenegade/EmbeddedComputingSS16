@@ -17,6 +17,7 @@ die sowohl vor, als auch nach dem warten die Systemzeit ausgibt, und außerdem e
 in dem anhand der Interrupts des Programms die gewartete Zeit nach der Ausführung gemessen werden kann.
 
 \ ![Programmausgabe](images/Aufgabe2.1_screencap_output.PNG)
+
 \ ![Systemlog-Messung](images/Aufgabe2.1_screencap_log.PNG)
 
 ## 2.2
