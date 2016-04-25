@@ -16,8 +16,8 @@ Zum testen der tatsächlich gewarteten Zeit wurde einerseits eine Konsolenausgab
 die sowohl vor, als auch nach dem warten die Systemzeit ausgibt, und außerdem ein System-Log erstellt,
 in dem anhand der Interrupts des Programms die gewartete Zeit nach der Ausführung gemessen werden kann.
 
-![Programmausgabe](images/Aufgabe2.1_screencap_output.PNG)
-![Systemlog-Messung](images/Aufgabe2.1_screencap_log.PNG)
+\ ![Programmausgabe](images/Aufgabe2.1_screencap_output.PNG)
+\ ![Systemlog-Messung](images/Aufgabe2.1_screencap_log.PNG)
 
 ## 2.2
 
@@ -30,10 +30,10 @@ Wenn der Wert besonders niedrig ist, kommt der Prozessor aufgrund der durchgehen
 während ein zu hoher Systemtakt (bspw. über 1000 Millisekunden) dazu führen kann, dass Wartezeiten im Programm unter 1000ms nicht mehr korrekt funktionieren.
 
 ### Konfiguration 9µs
-![CPU-Auslastung](images/Aufgabe2.2_screencap_9ms_summary.PNG)
+\ ![CPU-Auslastung](images/Aufgabe2.2_screencap_9ms_summary.PNG)
 
 ### Konfiguration 10µs
-![CPU-Auslastung](images/Aufgabe2.2_screencap_10ms_summary.PNG)
+\ ![CPU-Auslastung](images/Aufgabe2.2_screencap_10ms_summary.PNG)
 
 Bei der Konfiguration mit 9ms fällt auf, dass sämtliche Statistiken des Systemlogs keinen Sinn mehr ergeben.
 Auch schafft es das Programm nicht mehr eine Ausgabe auf der Konsole auszuführen. Mit der Konfiguration von 10ms läuft das System stabil, ebenso wie das Programm.
@@ -47,4 +47,4 @@ und das Programm erst zur nächsten Änderung geweckt wird. Wenn die eingestellt
 Siehe dazu den folgenden Screenshot.
 
 ### Konfiguration 3000µs
-![Systemlog des Ticker-Programms aus Aufgabe 2.1](images/Aufgabe2.2_screencap_3000ms.PNG)
+\ ![Systemlog des Ticker-Programms aus Aufgabe 2.1](images/Aufgabe2.2_screencap_3000ms.PNG)
