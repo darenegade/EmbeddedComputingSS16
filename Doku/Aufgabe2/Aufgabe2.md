@@ -31,11 +31,11 @@ während ein zu hoher Systemtak (bspw. über 1000 millisekunden) dazu führen ka
 
 ### Konfiguration 500ms
 ![Systemlog des Ticker-Programms aus Aufgabe 2.1](images/Aufgabe2.2_screencap_500ms.PNG)
-![CPU-Auslastung](Aufgabe2.2_screencap_500ms_summary.PNG)
+![CPU-Auslastung](images/Aufgabe2.2_screencap_500ms_summary.PNG)
 
 ### Konfiguration 3000ms
 ![Systemlog des Ticker-Programms aus Aufgabe 2.1](images/Aufgabe2.2_screencap_3000ms.PNG)
-![CPU-Auslastung](Aufgabe2.2_screencap_3000ms_summary.PNG)
+![CPU-Auslastung](images/Aufgabe2.2_screencap_3000ms_summary.PNG)
 
 ## 2.3
 
