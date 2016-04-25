@@ -29,17 +29,21 @@ Der minimal gerade sinnvolle Wert für den Systemtakt lässt sich über das Syst
 Wenn der Wert besonders niedrig ist, kommt der Prozessor vor lauter interrupts nicht mehr zum abarbeiten von anderen Tasks,
 während ein zu hoher Systemtak (bspw. über 1000 millisekunden) dazu führen kann, dass Wartezeiten unter 1000ms nicht mehr korrekt funktionieren.
 
-### Konfiguration 500ms
-![Systemlog des Ticker-Programms aus Aufgabe 2.1](images/Aufgabe2.2_screencap_500ms.PNG)
-![CPU-Auslastung](images/Aufgabe2.2_screencap_500ms_summary.PNG)
+### Konfiguration 9ms
+![CPU-Auslastung](images/Aufgabe2.2_screencap_9ms_summary.PNG)
 
-### Konfiguration 3000ms
-![Systemlog des Ticker-Programms aus Aufgabe 2.1](images/Aufgabe2.2_screencap_3000ms.PNG)
-![CPU-Auslastung](images/Aufgabe2.2_screencap_3000ms_summary.PNG)
+### Konfiguration 10ms
+![CPU-Auslastung](images/Aufgabe2.2_screencap_10ms_summary.PNG)
+
+Bei der Konfiguration mit 9ms fällt auf, dass sämtliche Statistiken des Systemlogs keinen Sinn mehr ergeben.
+Auch schafft es das Programm nicht mehr eine Ausgabe auf der Konsole auszuführen. Mit der Konfiguration von 10ms läuft das System stabil, ebenso wie das Programm.
 
 ## 2.3
 
-Wie bereits in 2.2 genannt, führt eine zu hohe Konfiguration des Systemtakts (Takt > Wartezeit) dazu,
+Eine zu hohe Konfiguration des Systemtakts (Takt > Wartezeit) führt dazu,
 dass nicht mehr zuverlässig gewartet wird. Dies geschieht, da die Systemzeit seltener aktualisiert wird, 
-und das Programm erst zur nächsten Änderung geweckt wird. Diese Änderunge ist allerdings bei zu hohem Takt später als 1ms.
-Siehe dazu auch die Screenshots in 2.2 mit dem Systemtakt bei 3000ms.
+und das Programm erst zur nächsten Änderung geweckt wird. Diese Änderunge ist allerdings bei zu hohem Takt später als die Wartezeit von 1000ms.
+Siehe dazu den folgenden Screenshot.
+
+### Konfiguration 3000ms
+![Systemlog des Ticker-Programms aus Aufgabe 2.1](images/Aufgabe2.2_screencap_3000ms.PNG)
