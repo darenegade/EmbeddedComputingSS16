@@ -56,7 +56,11 @@ Zum Abschluss darf nicht vergessen werden das Device-File wieder zu schließen.
 
 ## Beschreibung
 
+Da der GPIO 3.3V schaltet und die LED bei 2V 30mA benötigt, muss noch 1.3V auf einem Vorwiederstand abfallen.
+Nach dem ohmschen Gesetzt (U = R * I) muss somit der Vorwiederstand 43.33 Ohm betragen. Wir haben eine 100 Ohm Wiederstand gewählt.
+Unsere Schaltung ist unten dargestellt.
 
+Um die LED einzuschalten, muss in den Systemdateien der LED die Richtung (Direction) auf "out" gesetzt werden und der Value auf 1.
 
 ## Schaltzeichnung
 
