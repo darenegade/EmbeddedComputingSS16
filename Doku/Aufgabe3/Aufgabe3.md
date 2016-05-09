@@ -60,10 +60,10 @@ Zum Abschluss darf nicht vergessen werden das Device-File wieder zu schließen.
 
 ## Schaltzeichnung
 
-\ ![Schaltzeichnung](/images/drawing.jpg)
+\ ![Schaltzeichnung](images/drawing.jpg)
 
 ## Bilder der gesteckten Schaltung
 
-\ ![BeagleBoneBlack und Board](/images/bbb_and_board.jpg)
-\ ![Board von der Seite](/images/board_side.jpg)
-\ ![Board von Oben](/images/board_top.jpg)
+\ ![BeagleBoneBlack und Board](images/bbb_and_board.jpg)
+\ ![Board von der Seite](images/board_side.jpg)
+\ ![Board von Oben](images/board_top.jpg)
