@@ -60,7 +60,7 @@ Zum Abschluss darf nicht vergessen werden das Device-File wieder zu schließen.
 
 ## Schaltzeichnung
 
-\ ![Schaltzeichnung](images/drawing.jpg)
+\ ![Schaltzeichnung](images/LED.png)
 
 ## Bilder der gesteckten Schaltung
 
