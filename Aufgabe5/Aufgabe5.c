@@ -4,9 +4,9 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <time.h>
+#include <errno.h>
 #include <sys/neutrino.h>
 #include <sys/netmgr.h>
-#include <errno.h>
 
 enum PIN_VALUE {
 	LOW = 0, HIGH = 1
@@ -84,7 +84,7 @@ void controlServo(int pulsetime) {
 	int directionAdderSubtractorThingie = 4;
 
 	while (1) {
-		// Wait for timer event.
+		// Wait for timer event.qnx
 		rcvid = MsgReceive(chid, &msg, sizeof(msg), NULL);
 		if (rcvid == 0) {
 			// Get GPIO-File for servo-pin
@@ -161,10 +161,9 @@ void constructTimer() {
 
 	// create event to receive timer events.
 	event.sigev_notify = SIGEV_PULSE;
-	event.sigev_coid = ConnectAttach(ND_LOCAL_NODE, 0, chid, _NTO_SIDE_CHANNEL,
-			0);
-	event.sigev_priority = getprio(0);
+	event.sigev_coid = ConnectAttach(ND_LOCAL_NODE, 0, chid, _NTO_SIDE_CHANNEL,0);
 	event.sigev_code = MY_PULSE_CODE;
+	event.sigev_priority = getprio(0);
 	if (timer_create(CLOCK_REALTIME, &event, &timer) == -1) {
 		printf("Error:unable to create timer.\n");
 		exit(-1);
