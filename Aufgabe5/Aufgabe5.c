@@ -21,7 +21,8 @@ typedef union {
 	struct _pulse pulse;
 } timer_message_t;
 
-#ifdef __linux__
+#if defined(__linux__)
+
 int gpio_export(unsigned int gpio) {
 	int fd, len;
 	char buf[64];
@@ -52,6 +53,7 @@ int gpio_set_value(unsigned int gpio, PIN_VALUE value) {
 	close(fd);
 	return 0;
 }
+
 #endif
 
 int filedes;
@@ -62,7 +64,7 @@ void *controlServo(void *pulsetime) {
 	timer_message_t msg;
 
 	// Get GPIO-File for servo-pin
-#ifdef QNX
+#if defined(__QNX__)
 	printf("Starting in QNX-Mode");
 	// try to open device file
 	int filedes = open("/dev/gpio1/12", O_RDWR);
@@ -70,7 +72,7 @@ void *controlServo(void *pulsetime) {
 		printf("Can't open device.\n");
 		return EXIT_FAILURE;
 	}
-#elif __linux__
+#elif defined(__linux__)
 	printf("Starting in Linux-Mode");
 	if (gpio_export(44) != 0) {
 		printf("Error opening gpio.");
@@ -82,34 +84,33 @@ void *controlServo(void *pulsetime) {
 		// Wait for timer event.
 		rcvid = MsgReceive(chid, &msg, sizeof(msg), NULL);
 		if (rcvid == 0) {
-			if (clock_gettime(CLOCK_REALTIME, &waitStart) == -1) {
-				printf("Error getting current system time.\n");
-				return EXIT_FAILURE;
-			}
-
 			// Get GPIO-File for servo-pin
-#ifdef QNX
+#if defined(__QNX__)
 			// write data bytemask to device
 			if(write(filedes, "1", 1) == -1) {
 				printf("Can't write cause I'm stupid. errno is %d \n", errno);
 				return EXIT_FAILURE;
 			}
-#elif __linux__
+#elif defined(__linux__)
 			if (gpio_set_value(44, HIGH) != 0) {
 				printf("Can't write cause I'm stupid. errno is %d \n", errno);
 				return EXIT_FAILURE;
 			}
 #endif
 
+			if (clock_gettime(CLOCK_REALTIME, &waitStart) == -1) {
+				printf("Error getting current system time.\n");
+				return EXIT_FAILURE;
+			}
 			betterSleep(pulsetime, waitStart);
 
-#ifdef QNX
+#if defined(__QNX__)
 			// write data bytemask to device
 			if(write(filedes, "0", 1) == -1) {
 				printf("Can't write cause I'm stupid. errno is %d \n", errno);
 				return EXIT_FAILURE;
 			}
-#elif __linux__
+#elif defined(__linux__)
 			if (gpio_set_value(44, LOW) != 0) {
 				printf("Can't write cause I'm stupid. errno is %d \n", errno);
 				return EXIT_FAILURE;
@@ -159,7 +160,7 @@ void constructTimer() {
 		exit(-1);
 	}
 
-	// configure timer interval to send event every 4ms
+	// configure timer interval to send event every 20ms
 	itime.it_value.tv_sec = 0;
 	itime.it_value.tv_nsec = 20000000;
 	itime.it_interval.tv_sec = 0;
@@ -175,10 +176,8 @@ void constructTimer() {
 int filedes;
 
 int main(int argc, char *argv[]) {
+	printf("asdf");
 
-#ifdef QNX
-	printf("test"):
-#endif
 	// Check correct number of arguments and save degree
 	if (argc != 2) {
 		printf("Please specify percentage of servo\n");
@@ -190,16 +189,16 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-
 	// Start timer for servo cycle (20ms)
 	constructTimer();
 
-	int pulseTime = ((percentage / 100) * 2000) + 500;
+	int pulseTime = ((percentage / 100.0) * 2000) + 500;
+	printf("Percentage: %d\n Time: %d\n", percentage, pulseTime);
 
 	// Start servo controller
 	pthread_t thread;
-	if (pthread_create(&thread, NULL, pthread_create(), pulseTime)) {
-		printf("Error:unable to create thread 1.\n");
+	if (pthread_create(&thread, NULL, controlServo, pulseTime)) {
+		printf("Error:unable to create thread.\n");
 		exit(-1);
 	}
 
