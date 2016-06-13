@@ -58,7 +58,7 @@ int gpio_set_value(unsigned int gpio, PIN_VALUE value) {
 
 int filedes;
 
-void *controlServo(void *pulsetime) {
+void controlServo(int pulsetime) {
 	printf("Started controlling servo.\n");
 	struct timespec waitStart;
 	timer_message_t msg;
@@ -70,13 +70,13 @@ void *controlServo(void *pulsetime) {
 	int filedes = open("/dev/gpio1/12", O_RDWR);
 	if(filedes == -1) {
 		printf("Can't open device.\n");
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 	}
 #elif defined(__linux__)
 	printf("Starting in Linux-Mode");
 	if (gpio_export(44) != 0) {
 		printf("Error opening gpio.");
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 	}
 #endif
 
@@ -92,7 +92,7 @@ void *controlServo(void *pulsetime) {
 			// write data bytemask to device
 			if(write(filedes, "1", 1) == -1) {
 				printf("Can't write cause I'm stupid. errno is %d \n", errno);
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 			}
 #elif defined(__linux__)
 			if (gpio_set_value(44, HIGH) != 0) {
@@ -103,7 +103,7 @@ void *controlServo(void *pulsetime) {
 
 			if (clock_gettime(CLOCK_REALTIME, &waitStart) == -1) {
 				printf("Error getting current system time.\n");
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 			}
 			if(pulsetime == -1){
 				betterSleep(linearPulse, waitStart);
@@ -119,7 +119,7 @@ void *controlServo(void *pulsetime) {
 			// write data bytemask to device
 			if(write(filedes, "0", 1) == -1) {
 				printf("Can't write cause I'm stupid. errno is %d \n", errno);
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 			}
 #elif defined(__linux__)
 			if (gpio_set_value(44, LOW) != 0) {
@@ -129,7 +129,6 @@ void *controlServo(void *pulsetime) {
 #endif
 		}
 	}
-	pthread_exit();
 }
 
 /**
@@ -226,16 +225,7 @@ int main(int argc, char *argv[]) {
 	printf("Percentage: %d\n Time: %d\n", percentage, pulseTime);
 
 	// Start servo controller
-	pthread_t thread;
-	if (pthread_create(&thread, NULL, controlServo, pulseTime)) {
-		printf("Error:unable to create thread.\n");
-		exit(-1);
-	}
-
-	if(pthread_join(thread, NULL)){
-        printf( "Error:unable to join thread.\n");
-        exit(-1);
-    }
+	controlServo(pulseTime);
 
 	return EXIT_SUCCESS;
 }
