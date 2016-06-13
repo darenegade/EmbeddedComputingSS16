@@ -80,6 +80,9 @@ void *controlServo(void *pulsetime) {
 	}
 #endif
 
+	int linearPulse = 500;
+	int directionAdderSubtractorThingie = 4;
+
 	while (1) {
 		// Wait for timer event.
 		rcvid = MsgReceive(chid, &msg, sizeof(msg), NULL);
@@ -102,7 +105,15 @@ void *controlServo(void *pulsetime) {
 				printf("Error getting current system time.\n");
 				return EXIT_FAILURE;
 			}
-			betterSleep(pulsetime, waitStart);
+			if(pulsetime == -1){
+				betterSleep(linearPulse, waitStart);
+				linearPulse += directionAdderSubtractorThingie;
+				if(linearPulse >= 2500 || linearPulse <= 500){
+					directionAdderSubtractorThingie *= -1;
+				}
+			} else {
+				betterSleep(pulsetime, waitStart);
+			}
 
 #if defined(__QNX__)
 			// write data bytemask to device
@@ -173,10 +184,26 @@ void constructTimer() {
 	}
 }
 
+/**
+ * Changes the systems tick to the given value microsecs
+ */
+int changeSystemTick(unsigned int microsecs) {
+	struct _clockperiod newClock;
+
+	// set new clockspeed to parameter microsecs
+	newClock.nsec = microsecs*1000;
+	newClock.fract = 0;
+	if(ClockPeriod(CLOCK_REALTIME, &newClock, NULL, 0)==-1){
+		printf("Error setting clockspeed.");
+		return EXIT_FAILURE;
+	}
+
+}
+
 int filedes;
 
 int main(int argc, char *argv[]) {
-	printf("asdf");
+	changeSystemTick(10);
 
 	// Check correct number of arguments and save degree
 	if (argc != 2) {
@@ -184,15 +211,18 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 	int percentage = atoi(argv[1]);
-	if (percentage < 0 || percentage > 100) {
-		printf("Invalid value for percentage. Only value between 0 and 100 accepted.");
+	if (percentage < -1 || percentage > 100) {
+		printf("Invalid value for percentage. Only value between 0 and 100 accepted or -1 for automatic mode.");
 		return EXIT_FAILURE;
 	}
 
 	// Start timer for servo cycle (20ms)
 	constructTimer();
 
-	int pulseTime = ((percentage / 100.0) * 2000) + 500;
+	int pulseTime = -1;
+	if(percentage > 0){
+		pulseTime = ((percentage / 100.0) * 2000) + 500;
+	}
 	printf("Percentage: %d\n Time: %d\n", percentage, pulseTime);
 
 	// Start servo controller
