@@ -13,15 +13,23 @@
 
 #if defined(__linux__)
 
+/**
+ * Sets the GPIO to the given Value
+ * (Only Linux)
+ * */
 int gpio_set_value(unsigned int gpio, int value) {
 	int fd;
 	char buf[64];
+	//Init File
 	snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%d/value", gpio);
 	fd = open(buf, O_WRONLY);
+	
 	if (fd < 0) {
 		perror("gpio/set-value");
 		return fd;
 	}
+	
+	//Set value
 	if (value == 0)
 	write(fd, "0", 2);
 	else
@@ -31,8 +39,6 @@ int gpio_set_value(unsigned int gpio, int value) {
 }
 
 #endif
-
-int filedes;
 
 /**
  * Sleep for usec Microseconds
@@ -50,6 +56,7 @@ void betterSleep(int usec, struct timespec start) {
 	}
 }
 
+int filedes;
 void controlServo(int pulsetime) {
 	printf("Started controlling servo.\n");
 	struct timespec waitStart;
@@ -64,6 +71,7 @@ void controlServo(int pulsetime) {
 		exit(EXIT_FAILURE);
 	}
 #elif defined(__linux__)
+	//Init GPIO and set direction 
 	system("echo 44 > /sys/class/gpio/export");
 	system("echo out > /sys/class/gpio/gpio44/direction");
 #endif
@@ -72,6 +80,7 @@ void controlServo(int pulsetime) {
 	int directionAdderSubtractorThingie = 4;
 
 	while (1) {
+		//Get periode strart time
 		if (clock_gettime(CLOCK_REALTIME, &waitStart) == -1) {
 			printf("Error getting current system time.\n");
 			exit(EXIT_FAILURE);
@@ -90,8 +99,10 @@ void controlServo(int pulsetime) {
 		}
 #endif
 
+		//pulseTime with -1 is autom. Mode
 		if (pulsetime == -1) {
 			betterSleep(linearPulse, waitStart);
+			//Calc next Pulse time
 			linearPulse += directionAdderSubtractorThingie;
 			if (linearPulse >= 2500 || linearPulse <= 500) {
 				directionAdderSubtractorThingie *= -1;
@@ -112,6 +123,7 @@ void controlServo(int pulsetime) {
 			exit(EXIT_FAILURE);
 		}
 #endif
+		//Wait the remaining time of periode
 		betterSleep(20000, waitStart);
 	}
 
@@ -135,7 +147,6 @@ int changeSystemTick(unsigned int microsecs) {
 }
 #endif
 
-int filedes;
 
 int main(int argc, char *argv[]) {
 #if defined(__QNX__)
