@@ -11,19 +11,6 @@
 #include <sys/netmgr.h>
 #endif
 
-int chid, rcvid;
-
-#if defined(__QNX__)
-#define MY_PULSE_CODE _PULSE_CODE_MINAVAIL;
-#endif
-
-
-#if defined(__QNX__)
-typedef union {
-	struct _pulse pulse;
-} timer_message_t;
-#endif
-
 #if defined(__linux__)
 
 int gpio_export(unsigned int gpio) {
@@ -31,7 +18,7 @@ int gpio_export(unsigned int gpio) {
 	char buf[64];
 	fd = open("/sys/class/gpio/export", O_WRONLY);
 	if (fd < 0) {
-		perror("gpio/export");
+		printf("Error:" + errno);
 		return fd;
 	}
 	len = snprintf(buf, sizeof(buf), "%d", gpio);
@@ -40,9 +27,23 @@ int gpio_export(unsigned int gpio) {
 	return 0;
 }
 
+int gpio_write_out() {
+	int fd;
+	char buf[64];
+	snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%d/value", 44);
+	fd = open(buf, O_WRONLY);
+	if (fd < 0) {
+		perror("gpio/set-value");
+		return fd;
+	}
+	write(fd, "out", 2);
+	close(fd);
+	return 0;
+}
+
 int gpio_set_value(unsigned int gpio, int value) {
 	int fd;
-	char buf[MAX_BUF];
+	char buf[64];
 	snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%d/value", gpio);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
@@ -50,9 +51,9 @@ int gpio_set_value(unsigned int gpio, int value) {
 		return fd;
 	}
 	if (value == 0)
-		write(fd, "0", 2);
+	write(fd, "0", 2);
 	else
-		write(fd, "1", 2);
+	write(fd, "1", 2);
 	close(fd);
 	return 0;
 }
@@ -80,21 +81,24 @@ void betterSleep(int usec, struct timespec start) {
 void controlServo(int pulsetime) {
 	printf("Started controlling servo.\n");
 	struct timespec waitStart;
-	timer_message_t msg;
 
 	// Get GPIO-File for servo-pin
 #if defined(__QNX__)
 	printf("Starting in QNX-Mode");
 	// try to open device file
 	int filedes = open("/dev/gpio1/12", O_RDWR);
-	if(filedes == -1) {
+	if (filedes == -1) {
 		printf("Can't open device.\n");
 		exit(EXIT_FAILURE);
 	}
 #elif defined(__linux__)
 	printf("Starting in Linux-Mode");
 	if (gpio_export(44) != 0) {
-		printf("Error opening gpio.");
+		printf("Error exporting gpio.");
+		exit(EXIT_FAILURE);
+	}
+	if(gpio_write_out() != 0) {
+		printf("Error writing 'out' to device.");
 		exit(EXIT_FAILURE);
 	}
 #endif
@@ -103,88 +107,52 @@ void controlServo(int pulsetime) {
 	int directionAdderSubtractorThingie = 4;
 
 	while (1) {
-		// Wait for timer event.qnx
-		rcvid = MsgReceive(chid, &msg, sizeof(msg), NULL);
-		if (rcvid == 0) {
-			// Get GPIO-File for servo-pin
-#if defined(__QNX__)
-			// write data bytemask to device
-			if(write(filedes, "1", 1) == -1) {
-				printf("Can't write cause I'm stupid. errno is %d \n", errno);
-				exit(EXIT_FAILURE);
-			}
-#elif defined(__linux__)
-			if (gpio_set_value(44, 1) != 0) {
-				printf("Can't write cause I'm stupid. errno is %d \n", errno);
-				exit(EXIT_FAILURE);
-			}
-#endif
-
-			if (clock_gettime(CLOCK_REALTIME, &waitStart) == -1) {
-				printf("Error getting current system time.\n");
-				exit(EXIT_FAILURE);
-			}
-			if(pulsetime == -1){
-				betterSleep(linearPulse, waitStart);
-				linearPulse += directionAdderSubtractorThingie;
-				if(linearPulse >= 2500 || linearPulse <= 500){
-					directionAdderSubtractorThingie *= -1;
-				}
-			} else {
-				betterSleep(pulsetime, waitStart);
-			}
-
-#if defined(__QNX__)
-			// write data bytemask to device
-			if(write(filedes, "0", 1) == -1) {
-				printf("Can't write cause I'm stupid. errno is %d \n", errno);
-				exit(EXIT_FAILURE);
-			}
-#elif defined(__linux__)
-			if (gpio_set_value(44, 0) != 0) {
-				printf("Can't write cause I'm stupid. errno is %d \n", errno);
-				exit(EXIT_FAILURE);
-			}
-#endif
+		if (clock_gettime(CLOCK_REALTIME, &waitStart) == -1) {
+			printf("Error getting current system time.\n");
+			exit(EXIT_FAILURE);
 		}
+		// Get GPIO-File for servo-pin
+#if defined(__QNX__)
+		// write data bytemask to device
+		if (write(filedes, "1", 1) == -1) {
+			printf("Can't write cause I'm stupid. errno is %d \n", errno);
+			exit(EXIT_FAILURE);
+		}
+#elif defined(__linux__)
+		if (gpio_set_value(44, 1) != 0) {
+			printf("Can't write cause I'm stupid. errno is %d \n", errno);
+			exit(EXIT_FAILURE);
+		}
+#endif
+
+		if (pulsetime == -1) {
+			betterSleep(linearPulse, waitStart);
+			linearPulse += directionAdderSubtractorThingie;
+			if (linearPulse >= 2500 || linearPulse <= 500) {
+				directionAdderSubtractorThingie *= -1;
+			}
+		} else {
+			betterSleep(pulsetime, waitStart);
+		}
+
+#if defined(__QNX__)
+		// write data bytemask to device
+		if (write(filedes, "0", 1) == -1) {
+			printf("Can't write cause I'm stupid. errno is %d \n", errno);
+			exit(EXIT_FAILURE);
+		}
+#elif defined(__linux__)
+		if (gpio_set_value(44, 0) != 0) {
+			printf("Can't write cause I'm stupid. errno is %d \n", errno);
+			exit(EXIT_FAILURE);
+		}
+#endif
+		betterSleep(20000, waitStart);
 	}
+
 }
 
-void constructTimer() {
-	struct sigevent event;
-	timer_t timer;
-	struct itimerspec itime;
-
-	chid = ChannelCreate(0);
-
-	if (chid == -1) {
-		printf("Cannot create communication channel.");
-		exit(-1);
-	}
-
-	// create event to receive timer events.
-	event.sigev_notify = SIGEV_PULSE;
-	event.sigev_coid = ConnectAttach(ND_LOCAL_NODE, 0, chid, _NTO_SIDE_CHANNEL,0);
-	event.sigev_code = MY_PULSE_CODE;
-	event.sigev_priority = getprio(0);
-	if (timer_create(CLOCK_REALTIME, &event, &timer) == -1) {
-		printf("Error:unable to create timer.\n");
-		exit(-1);
-	}
-
-	// configure timer interval to send event every 20ms
-	itime.it_value.tv_sec = 0;
-	itime.it_value.tv_nsec = 20000000;
-	itime.it_interval.tv_sec = 0;
-	itime.it_interval.tv_nsec = 20000000;
-
-	// start timer
-	if (timer_settime(timer, 0, &itime, NULL) == -1) {
-		printf("Error:unable to set time.\n");
-		exit(-1);
-	}
-}
-
+#if defined(__QNX__)
 /**
  * Changes the systems tick to the given value microsecs
  */
@@ -192,19 +160,22 @@ int changeSystemTick(unsigned int microsecs) {
 	struct _clockperiod newClock;
 
 	// set new clockspeed to parameter microsecs
-	newClock.nsec = microsecs*1000;
+	newClock.nsec = microsecs * 1000;
 	newClock.fract = 0;
-	if(ClockPeriod(CLOCK_REALTIME, &newClock, NULL, 0)==-1){
+	if (ClockPeriod(CLOCK_REALTIME, &newClock, NULL, 0) == -1) {
 		printf("Error setting clockspeed.");
 		return EXIT_FAILURE;
 	}
 
 }
+#endif
 
 int filedes;
 
 int main(int argc, char *argv[]) {
-	changeSystemTick(10);
+#if defined(__QNX__)
+	changeSystemTick(11);
+#endif
 
 	// Check correct number of arguments and save degree
 	if (argc != 2) {
@@ -213,15 +184,13 @@ int main(int argc, char *argv[]) {
 	}
 	int percentage = atoi(argv[1]);
 	if (percentage < -1 || percentage > 100) {
-		printf("Invalid value for percentage. Only value between 0 and 100 accepted or -1 for automatic mode.");
+		printf(
+				"Invalid value for percentage. Only value between 0 and 100 accepted or -1 for automatic mode.");
 		return EXIT_FAILURE;
 	}
 
-	// Start timer for servo cycle (20ms)
-	constructTimer();
-
 	int pulseTime = -1;
-	if(percentage > 0){
+	if (percentage > 0) {
 		pulseTime = ((percentage / 100.0) * 2000) + 500;
 	}
 	printf("Percentage: %d\n Time: %d\n", percentage, pulseTime);
