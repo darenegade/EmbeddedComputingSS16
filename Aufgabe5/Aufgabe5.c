@@ -5,28 +5,31 @@
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
+
+#if defined(__QNX__)
 #include <sys/neutrino.h>
 #include <sys/netmgr.h>
-
-enum PIN_VALUE {
-	LOW = 0, HIGH = 1
-};
+#endif
 
 int chid, rcvid;
 
+#if defined(__QNX__)
 #define MY_PULSE_CODE _PULSE_CODE_MINAVAIL;
-#define SYSFS_GPIO_DIR "/sys/class/gpio";
+#endif
 
+
+#if defined(__QNX__)
 typedef union {
 	struct _pulse pulse;
 } timer_message_t;
+#endif
 
 #if defined(__linux__)
 
 int gpio_export(unsigned int gpio) {
 	int fd, len;
 	char buf[64];
-	fd = open(SYSFS_GPIO_DIR "/export", O_WRONLY);
+	fd = open("/sys/class/gpio/export", O_WRONLY);
 	if (fd < 0) {
 		perror("gpio/export");
 		return fd;
@@ -37,16 +40,16 @@ int gpio_export(unsigned int gpio) {
 	return 0;
 }
 
-int gpio_set_value(unsigned int gpio, PIN_VALUE value) {
+int gpio_set_value(unsigned int gpio, int value) {
 	int fd;
 	char buf[MAX_BUF];
-	snprintf(buf, sizeof(buf), SYSFS_GPIO_DIR "/gpio%d/value", gpio);
+	snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%d/value", gpio);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		perror("gpio/set-value");
 		return fd;
 	}
-	if (value == LOW)
+	if (value == 0)
 		write(fd, "0", 2);
 	else
 		write(fd, "1", 2);
@@ -57,6 +60,22 @@ int gpio_set_value(unsigned int gpio, PIN_VALUE value) {
 #endif
 
 int filedes;
+
+/**
+ * Sleep for usec Microseconds
+ */
+void betterSleep(int usec, struct timespec start) {
+	long nsec = start.tv_nsec + usec * 1000;
+
+	if (nsec > 1000000000) {
+		start.tv_sec = start.tv_sec + (nsec % 1000000000);
+	}
+
+	start.tv_nsec = nsec;
+	if (clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &start, NULL) == -1) {
+		printf("Error sleeping.\n");
+	}
+}
 
 void controlServo(int pulsetime) {
 	printf("Started controlling servo.\n");
@@ -95,9 +114,9 @@ void controlServo(int pulsetime) {
 				exit(EXIT_FAILURE);
 			}
 #elif defined(__linux__)
-			if (gpio_set_value(44, HIGH) != 0) {
+			if (gpio_set_value(44, 1) != 0) {
 				printf("Can't write cause I'm stupid. errno is %d \n", errno);
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 			}
 #endif
 
@@ -122,28 +141,12 @@ void controlServo(int pulsetime) {
 				exit(EXIT_FAILURE);
 			}
 #elif defined(__linux__)
-			if (gpio_set_value(44, LOW) != 0) {
+			if (gpio_set_value(44, 0) != 0) {
 				printf("Can't write cause I'm stupid. errno is %d \n", errno);
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 			}
 #endif
 		}
-	}
-}
-
-/**
- * Sleep for usec Microseconds
- */
-void betterSleep(int usec, struct timespec start) {
-	long nsec = start.tv_nsec + usec * 1000;
-
-	if (nsec > 1000000000) {
-		start.tv_sec = start.tv_sec + (nsec % 1000000000);
-	}
-
-	start.tv_nsec = nsec;
-	if (clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &start, NULL) == -1) {
-		printf("Error sleeping.\n");
 	}
 }
 
