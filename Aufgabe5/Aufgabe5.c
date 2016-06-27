@@ -13,34 +13,6 @@
 
 #if defined(__linux__)
 
-int gpio_export(unsigned int gpio) {
-	int fd, len;
-	char buf[64];
-	fd = open("/sys/class/gpio/export", O_WRONLY);
-	if (fd < 0) {
-		printf("Error:" + errno);
-		return fd;
-	}
-	len = snprintf(buf, sizeof(buf), "%d", gpio);
-	write(fd, buf, len);
-	close(fd);
-	return 0;
-}
-
-int gpio_write_out() {
-	int fd;
-	char buf[64];
-	snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%d/value", 44);
-	fd = open(buf, O_WRONLY);
-	if (fd < 0) {
-		perror("gpio/set-value");
-		return fd;
-	}
-	write(fd, "out", 2);
-	close(fd);
-	return 0;
-}
-
 int gpio_set_value(unsigned int gpio, int value) {
 	int fd;
 	char buf[64];
@@ -92,15 +64,8 @@ void controlServo(int pulsetime) {
 		exit(EXIT_FAILURE);
 	}
 #elif defined(__linux__)
-	printf("Starting in Linux-Mode");
-	if (gpio_export(44) != 0) {
-		printf("Error exporting gpio.");
-		exit(EXIT_FAILURE);
-	}
-	if(gpio_write_out() != 0) {
-		printf("Error writing 'out' to device.");
-		exit(EXIT_FAILURE);
-	}
+	system("echo 44 > /sys/class/gpio/export");
+	system("echo out > /sys/class/gpio/gpio44/direction");
 #endif
 
 	int linearPulse = 500;
